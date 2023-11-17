@@ -12,23 +12,46 @@ $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $p
 
 
 // get query parameter
+$lookup = $_GET['lookup'] ?? null;
 $country = $_GET['country'];
 
+if ($lookup == 'cities') {
+  $select = $conn->prepare("SELECT cities.name, cities.district, cities.population 
+  FROM countries JOIN cities ON countries.code = cities.country_code WHERE countries.name LIKE :country");
+  $select->bindValue(':country', '%' . $country . '%', PDO::PARAM_STR);
+  $select->execute();
+  $results = $select->fetchAll(PDO::FETCH_ASSOC);
 
-// get the country from the database
-$select = $conn->prepare("SELECT * FROM countries WHERE name LIKE :country");
-$select->bindValue(':country', '%' . $country . '%', PDO::PARAM_STR);
-$select->execute();
-$results = $select->fetchAll(PDO::FETCH_ASSOC);
 
-  // echo '<ul>';
-  //   foreach ($results as $row) {
-  //       echo '<li>' . $row['name'] . ' is ruled by ' . $row['head_of_state'] . '</li>';
-  //   }
-  //   echo '</ul>';
+}
+else{
 
+  $select = $conn->prepare("SELECT * FROM countries WHERE name LIKE :country");
+  $select->bindValue(':country', '%' . $country . '%', PDO::PARAM_STR);
+  $select->execute();
+  $results = $select->fetchAll(PDO::FETCH_ASSOC);
+  
+}
 
 ?>
+
+<?php if ($lookup == 'cities'): ?>
+  <table>
+  <tr>
+    <th>Name</th>
+    <th>District</th>
+    <th>Population</th>
+  </tr>
+  <?php foreach ($results as $row): ?>
+    <tr>
+      <td><?= $row['name']; ?></td>
+      <td><?= $row['district']; ?></td>
+      <td><?= $row['population']; ?></td>
+    </tr>
+  <?php endforeach; ?>
+
+</table>
+<?php else:  ?>
 <table>
   <tr>
     <th><?='Name'; ?></th>
@@ -45,3 +68,4 @@ $results = $select->fetchAll(PDO::FETCH_ASSOC);
     </tr>
   <?php endforeach; ?>
 </table>
+<?php endif; ?>
