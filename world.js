@@ -22,6 +22,8 @@ async function lookupCountry() {
     }
 }
 
+// search for cities
+
 function displayResult(data) {
     results.innerHTML = data;
 }
